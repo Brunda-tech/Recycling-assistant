@@ -1,0 +1,234 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Scan Waste | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">AI WASTE IDENTIFICATION</span>
+    <h1>Give your waste a <span class="gradient-text">second look.</span></h1>
+    <p class="muted">
+        Upload a clear image of an item or take a picture with your camera.
+    </p>
+</section>
+
+<div class="scan-layout">
+    <section class="panel">
+        <h2>Choose your image</h2>
+        <p class="muted">Supported formats: JPG, JPEG and PNG.</p>
+
+        <div class="camera-preview" id="camera-preview">
+            <div id="camera-placeholder">
+                <span class="camera-icon">📷</span>
+                <h3>Your scan preview</h3>
+                <p class="muted">Your selected image will appear here.</p>
+            </div>
+            <img id="image-preview" alt="Selected waste preview"
+                 hidden>
+            <video id="camera-video" autoplay playsinline hidden></video>
+        </div>
+
+        <div class="button-row">
+            <button type="button" class="button button-secondary"
+                    id="start-camera">
+                Open Camera
+            </button>
+            <button type="button" class="button button-secondary"
+                    id="capture-photo" hidden>
+                Capture Photo
+            </button>
+            <button type="button" class="button button-secondary"
+                    id="stop-camera" hidden>
+                Stop Camera
+            </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('scan') }}"
+              enctype="multipart/form-data" data-loading>
+            <div class="form-group">
+                <label for="image">Upload an image</label>
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="button button-primary">
+                Analyze Waste →
+            </button>
+        </form>
+
+        <p class="muted small-text">
+            Note: The accuracy of classification depends on the AI model
+            integrated with the application.
+        </p>
+    </section>
+
+    <aside class="panel scan-tips">
+        <span class="eyebrow">BETTER SCAN, BETTER RESULT</span>
+        <h2>Scanning tips</h2>
+
+        <div class="tip-item">
+            <span>💡</span>
+            <div>
+                <strong>Good lighting</strong>
+                <p>Make sure the item is clearly visible.</p>
+            </div>
+        </div>
+
+        <div class="tip-item">
+            <span>🎯</span>
+            <div>
+                <strong>Focus on the item</strong>
+                <p>Keep the waste item in the centre of the image.</p>
+            </div>
+        </div>
+
+        <div class="tip-item">
+            <span>🧹</span>
+            <div>
+                <strong>Reduce clutter</strong>
+                <p>Use a simple background when possible.</p>
+            </div>
+        </div>
+
+        <div class="tip-item">
+            <span>🔒</span>
+            <div>
+                <strong>Check before disposal</strong>
+                <p>Follow local recycling rules, especially for hazardous waste.</p>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fileInput = document.getElementById("image");
+const preview = document.getElementById("image-preview");
+const placeholder = document.getElementById("camera-placeholder");
+const video = document.getElementById("camera-video");
+const startButton = document.getElementById("start-camera");
+const captureButton = document.getElementById("capture-photo");
+const stopButton = document.getElementById("stop-camera");
+
+let cameraStream = null;
+
+function showPreview(source) {
+    preview.src = source;
+    preview.hidden = false;
+    placeholder.hidden = true;
+    video.hidden = true;
+}
+
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png"];
+
+    if (!allowedTypes.includes(file.type)) {
+        alert("Please select a JPG, JPEG, or PNG image.");
+        fileInput.value = "";
+        return;
+    }
+
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+    showPreview(imageUrl);
+
+    startButton.hidden = false;
+    captureButton.hidden = true;
+    stopButton.hidden = true;
+});
+
+startButton.addEventListener("click", async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+        alert("Camera access is unavailable. Use HTTPS or localhost, or upload an image.");
+        return;
+    }
+
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+            audio: false
+        });
+
+        video.srcObject = cameraStream;
+        video.hidden = false;
+        preview.hidden = true;
+        placeholder.hidden = true;
+
+        startButton.hidden = true;
+        captureButton.hidden = false;
+        stopButton.hidden = false;
+    } catch (error) {
+        alert("Could not access the camera. Please allow camera permission or upload an image.");
+    }
+});
+
+captureButton.addEventListener("click", () => {
+    if (!video.videoWidth) return;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+
+    canvas.toBlob(blob => {
+        if (!blob) {
+            alert("Could not capture the photo. Please try again.");
+            return;
+        }
+
+        const capturedFile = new File(
+            [blob],
+            "camera-scan.jpg",
+            { type: "image/jpeg" }
+        );
+
+        const transfer = new DataTransfer();
+        transfer.items.add(capturedFile);
+        fileInput.files = transfer.files;
+
+        showPreview(URL.createObjectURL(capturedFile));
+        stopCamera();
+    }, "image/jpeg", 0.92);
+});
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    video.srcObject = null;
+    video.hidden = true;
+    startButton.hidden = false;
+    captureButton.hidden = true;
+    stopButton.hidden = true;
+
+    if (preview.hidden) {
+        placeholder.hidden = false;
+    }
+}
+
+stopButton.addEventListener("click", stopCamera);
+
+window.addEventListener("beforeunload", () => {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock %}
+```

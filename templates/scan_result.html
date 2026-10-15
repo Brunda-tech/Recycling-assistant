@@ -1,0 +1,57 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Scan Result | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">SCAN COMPLETE</span>
+    <h1>Your waste <span class="gradient-text">report.</span></h1>
+    <p class="muted">Review the result and choose a responsible next step.</p>
+</section>
+
+<section class="result-layout">
+    <div class="panel">
+        <h2>Scanned item</h2>
+
+        {% if image_url %}
+            <img src="{{ image_url }}" alt="Scanned waste item"
+                 class="result-image">
+        {% endif %}
+
+        <p class="muted">File: {{ filename | default('Uploaded image') }}</p>
+    </div>
+
+    <div class="panel">
+        <span class="eyebrow">CLASSIFICATION</span>
+        <h2 class="gradient-text">
+            {{ category | default('Awaiting classification') }}
+        </h2>
+
+        <p>{{ description | default('Review the classification and follow local waste-disposal guidance.') }}</p>
+
+        <div class="recommendation-box">
+            <h3>Recommended action</h3>
+            <p>{{ recommendation | default('Check local recycling guidelines before disposal.') }}</p>
+        </div>
+
+        <p class="muted small-text">
+            {% if is_demo | default(true) %}
+                Demo classification only. This result is not a verified AI prediction.
+            {% else %}
+                AI-assisted result. Check the item's material and local disposal rules.
+            {% endif %}
+        </p>
+
+        <div class="button-row">
+            <a href="{{ url_for('scan') }}" class="button button-primary">
+                Scan Another
+            </a>
+            <a href="{{ url_for('history') }}" class="button button-secondary">
+                View History
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+```

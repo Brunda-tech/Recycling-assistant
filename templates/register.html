@@ -1,0 +1,86 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Create Account | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="auth-info">
+        <span class="eyebrow">JOIN THE GREEN MOVEMENT</span>
+
+        <h1>Make every item<br>
+            <span class="gradient-text">count.</span>
+        </h1>
+
+        <p>
+            Create your account to scan waste, learn responsible
+            disposal methods, and monitor your recycling journey.
+        </p>
+
+        <div class="impact-card">
+            <div class="impact-icon">🌱</div>
+            <h3>Your sustainability journey starts here.</h3>
+            <p>
+                One scan at a time, make more informed decisions
+                about the waste you produce.
+            </p>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <span class="eyebrow">GET STARTED</span>
+        <h2>Create your account</h2>
+        <p class="muted">Join EcoCycle AI for smarter waste management.</p>
+
+        <form method="POST" action="{{ url_for('register') }}"
+              data-loading>
+            <div class="form-group">
+                <label for="name">Full name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your name"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Create password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="At least 8 characters"
+                    minlength="8"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="button button-primary">
+                Create Account <span>→</span>
+            </button>
+        </form>
+
+        <p class="form-bottom">
+            Already registered?
+            <a href="{{ url_for('login') }}">Sign in</a>
+        </p>
+    </div>
+</section>
+{% endblock %}
+```

@@ -1,0 +1,59 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Scan History | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">YOUR ACTIVITY</span>
+    <h1>Scan <span class="gradient-text">history.</span></h1>
+    <p class="muted">Review your previous waste scans and classifications.</p>
+</section>
+
+<section class="panel">
+    {% if scans %}
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in scans %}
+                    <tr>
+                        <td>{{ scan.filename }}</td>
+                        <td>
+                            <span class="category-pill">
+                                {{ scan.category }}
+                            </span>
+                        </td>
+                        <td>{{ scan.created_at }}</td>
+                        <td>
+                            {% if scan.category == 'Recyclable' %}
+                                <span class="status-good">Recyclable</span>
+                            {% else %}
+                                <span class="muted">Reviewed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <span>🗂️</span>
+            <h2>No scans yet</h2>
+            <p class="muted">Your previous scans will appear here.</p>
+            <a href="{{ url_for('scan') }}" class="button button-primary">
+                Scan Your First Item
+            </a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+```

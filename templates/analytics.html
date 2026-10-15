@@ -1,0 +1,159 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Analytics | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">DATA & INSIGHTS</span>
+    <h1>Your recycling <span class="gradient-text">analytics.</span></h1>
+    <p class="muted">Understand the types of waste you've scanned.</p>
+</section>
+
+<section class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon">🔍</span>
+        <p>Total scans</p>
+        <h2>{{ total_scans | default(0) }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-icon">♻️</span>
+        <p>Recyclable</p>
+        <h2>{{ recyclable_count | default(0) }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-icon">🌍</span>
+        <p>Estimated CO₂ savings</p>
+        <h2>{{ co2_saved | default(0) }} kg</h2>
+    </div>
+</section>
+
+<section class="analytics-chart-grid" aria-label="Scan category charts">
+    <section class="panel chart-panel">
+        <span class="eyebrow">CATEGORY MIX</span>
+        <h2>Scan distribution</h2>
+        <div class="chart-with-legend">
+            <div class="chart-visual pie-visual"
+                 style="--chart-gradient: {{ chart_gradient }};"
+                 role="img" aria-label="Pie chart of {{ total_scans }} scans by category">
+            </div>
+            <div class="chart-legend">
+                {% for item in category_data %}
+                <div class="chart-legend-item">
+                    <span class="chart-legend-label">
+                        <span class="chart-swatch" style="--legend-color: {{ item.color }};"></span>
+                        {{ item.label }}
+                    </span>
+                    <strong>{{ item.count }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="panel chart-panel">
+        <span class="eyebrow">SCAN VOLUME</span>
+        <h2>Items by category</h2>
+        <div class="bar-chart-list">
+            {% for item in category_data %}
+            <div class="chart-row">
+                <div class="chart-label">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.count }}</strong>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-bar"
+                         style="--bar-width: {{ (item.count * 100 / max_category_count) if max_category_count else 0 }}%; --bar-color: {{ item.color }};">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel chart-panel">
+        <span class="eyebrow">SHARE OF ACTIVITY</span>
+        <h2>Category proportions</h2>
+        <div class="chart-with-legend">
+            <div class="chart-visual donut-visual"
+                 style="--chart-gradient: {{ chart_gradient }};"
+                 role="img" aria-label="Donut chart of {{ total_scans }} scans by category">
+                <div class="donut-center">
+                    <strong>{{ total_scans }}</strong>
+                    <span>scans</span>
+                </div>
+            </div>
+            <div class="chart-legend">
+                {% for item in category_data %}
+                <div class="chart-legend-item">
+                    <span class="chart-legend-label">
+                        <span class="chart-swatch" style="--legend-color: {{ item.color }};"></span>
+                        {{ item.label }}
+                    </span>
+                    <strong>{{ item.count }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</section>
+
+<section class="analytics-recommendation">
+    <div class="recommendation-heading">
+        <span class="eyebrow">GENERATIVE AI RECOMMENDATION</span>
+        <h2>What should happen to your next item?</h2>
+        <p class="muted">Ask a waste, reuse, or disposal question to get a practical recommendation.</p>
+    </div>
+    <form id="analytics-ai-form" class="chat-form">
+        <label class="sr-only" for="analytics-question">Ask for a recycling recommendation</label>
+        <input type="text" id="analytics-question" name="question"
+               maxlength="1000" placeholder="e.g. Where should I take a damaged phone?" required>
+        <button class="button button-primary" type="submit">Get recommendation</button>
+    </form>
+    <div id="analytics-ai-answer" class="ai-answer" aria-live="polite" hidden></div>
+</section>
+
+<div class="banner-card">
+    <div>
+        <h2>Keep building better habits.</h2>
+        <p class="muted">Scan more items to build your activity history.</p>
+    </div>
+    <a href="{{ url_for('scan') }}" class="button button-primary">
+        Scan an Item →
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const recommendationForm = document.getElementById("analytics-ai-form");
+const recommendationInput = document.getElementById("analytics-question");
+const recommendationAnswer = document.getElementById("analytics-ai-answer");
+
+recommendationForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    recommendationAnswer.hidden = false;
+    recommendationAnswer.textContent = "Preparing recommendation...";
+    const submitButton = recommendationForm.querySelector("button");
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch("{{ url_for('assistant') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: recommendationInput.value.trim() })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "The recommendation service could not answer.");
+        recommendationAnswer.textContent = data.answer;
+    } catch (error) {
+        recommendationAnswer.textContent = error.message || "The recommendation service could not answer. Please try again.";
+    } finally {
+        submitButton.disabled = false;
+    }
+});
+</script>
+{% endblock %}
+```

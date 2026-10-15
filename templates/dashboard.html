@@ -1,0 +1,93 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Dashboard | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">YOUR SUSTAINABILITY HUB</span>
+    <h1>Welcome back, <span class="gradient-text">{{ session.get('user_name', 'Eco Explorer') }}</span> 👋</h1>
+    <p class="muted">
+        Turn everyday waste into smarter environmental decisions.
+    </p>
+</section>
+
+<section class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon">🔍</span>
+        <p>Total scans</p>
+        <h2>{{ total_scans | default(0) }}</h2>
+        <span class="muted">Items you've analyzed</span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-icon">♻️</span>
+        <p>Recyclable items</p>
+        <h2>{{ recyclable_count | default(0) }}</h2>
+        <span class="muted">Identified as recyclable</span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-icon">🌱</span>
+        <p>Green impact</p>
+        <h2>{{ co2_saved | default(0) }} kg</h2>
+        <span class="muted">Estimated CO₂ savings</span>
+    </div>
+</section>
+
+<section class="section-heading">
+    <div>
+        <span class="eyebrow">EXPLORE YOUR WORKSPACE</span>
+        <h2>Your recycling toolkit</h2>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <a class="feature-card" href="{{ url_for('scan') }}">
+        <span class="feature-icon">📸</span>
+        <h3>Scan an Item</h3>
+        <p>Upload an image or use your camera to analyze waste.</p>
+        <span class="card-link">Start scanning →</span>
+    </a>
+
+    <a class="feature-card" href="{{ url_for('analytics') }}">
+        <span class="feature-icon">📊</span>
+        <h3>View Analytics</h3>
+        <p>Explore your waste categories and recycling activity.</p>
+        <span class="card-link">View insights →</span>
+    </a>
+
+    <a class="feature-card" href="{{ url_for('history') }}">
+        <span class="feature-icon">🕘</span>
+        <h3>Past History</h3>
+        <p>Review previously scanned items and their results.</p>
+        <span class="card-link">View history →</span>
+    </a>
+
+    <a class="feature-card" href="{{ url_for('assistant') }}">
+        <span class="feature-icon">🤖</span>
+        <h3>Gen AI Assistant</h3>
+        <p>Get recycling suggestions and ask waste-related questions.</p>
+        <span class="card-link">Ask the assistant →</span>
+    </a>
+
+    <a class="feature-card" href="{{ url_for('digital_twin') }}">
+        <span class="feature-icon">🌍</span>
+        <h3>Digital Twin</h3>
+        <p>Explore a visual representation of the recycling journey.</p>
+        <span class="card-link">Explore the twin →</span>
+    </a>
+</section>
+
+<section class="banner-card">
+    <div>
+        <span class="eyebrow">YOUR NEXT STEP</span>
+        <h2>Not sure where an item belongs?</h2>
+        <p>Start with a scan and discover the recommended disposal method.</p>
+    </div>
+    <a href="{{ url_for('scan') }}" class="button button-primary">
+        Scan Waste →
+    </a>
+</section>
+{% endblock %}
+```

@@ -1,0 +1,162 @@
+
+{% extends "base.html" %}
+
+{% block title %}AI Assistant | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">GEN AI RECYCLING GUIDE</span>
+    <h1>Ask. Learn. <span class="gradient-text">Recycle better.</span></h1>
+    <p class="muted">
+        Get practical guidance for recycling, reuse, and safe disposal.
+    </p>
+</section>
+
+<section class="assistant-layout">
+    <div class="panel chat-panel">
+        <div class="chat-header">
+            <div class="assistant-avatar">🤖</div>
+            <div>
+                <h2>Generative AI recommendation</h2>
+                <p class="muted">A practical guide for the item you ask about</p>
+            </div>
+        </div>
+
+        <div id="chat-messages" class="chat-messages" aria-live="polite">
+            <div class="chat-message assistant-message">
+                <strong>Eco Assistant</strong>
+                <p>Hello! Ask me how to recycle an item, reuse materials,
+                or dispose of waste safely.</p>
+            </div>
+        </div>
+
+        <form id="assistant-form" class="chat-form">
+            <label class="sr-only" for="question">Your question</label>
+            <input
+                type="text"
+                id="question"
+                name="question"
+                placeholder="e.g. How do I dispose of an old battery?"
+                maxlength="1000"
+                required
+            >
+            <button class="button button-primary" type="submit">
+                Send →
+            </button>
+        </form>
+
+        <p id="assistant-status" class="muted small-text"
+           aria-live="polite"></p>
+    </div>
+
+    <aside class="panel">
+        <span class="eyebrow">QUICK QUESTIONS</span>
+        <h2>Need an idea?</h2>
+
+        <div class="suggestion-list">
+            <button class="suggestion-button" type="button">
+                How can I recycle plastic bottles?
+            </button>
+            <button class="suggestion-button" type="button">
+                What should I do with old batteries?
+            </button>
+            <button class="suggestion-button" type="button">
+                Give me ideas to reuse cardboard.
+            </button>
+            <button class="suggestion-button" type="button">
+                How can I reduce household waste?
+            </button>
+        </div>
+
+        <div class="recommendation-box">
+            <h3>Safety first</h3>
+            <p>
+                Batteries, chemicals, e-waste, and other hazardous items
+                may require specialist handling. Follow local guidance
+                and use authorized collection facilities.
+            </p>
+        </div>
+    </aside>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const assistantForm = document.getElementById("assistant-form");
+const questionInput = document.getElementById("question");
+const chatMessages = document.getElementById("chat-messages");
+const assistantStatus = document.getElementById("assistant-status");
+
+function addMessage(sender, message, className) {
+    const article = document.createElement("div");
+    article.className = `chat-message ${className}`;
+
+    const heading = document.createElement("strong");
+    heading.textContent = sender;
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+
+    article.append(heading, paragraph);
+    chatMessages.appendChild(article);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+document.querySelectorAll(".suggestion-button").forEach(button => {
+    button.addEventListener("click", () => {
+        questionInput.value = button.textContent.trim();
+        questionInput.focus();
+    });
+});
+
+assistantForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const question = questionInput.value.trim();
+    if (!question) return;
+
+    addMessage("You", question, "user-message");
+    questionInput.value = "";
+    assistantStatus.textContent = "Preparing your answer...";
+
+    const submitButton = assistantForm.querySelector("button");
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch("{{ url_for('assistant') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "The assistant could not answer.");
+        }
+
+        addMessage(
+            "Eco Assistant",
+            data.answer || "No answer was returned. Please try again.",
+            "assistant-message"
+        );
+
+        assistantStatus.textContent = "";
+    } catch (error) {
+        addMessage(
+            "Eco Assistant",
+            error.message || "The service is not available yet. Please try again later.",
+            "assistant-message"
+        );
+
+        assistantStatus.textContent =
+            "Check that the Flask assistant endpoint is configured.";
+    } finally {
+        submitButton.disabled = false;
+        questionInput.focus();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Login | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="auth-info">
+        <span class="eyebrow">♻ SMART RECYCLING ASSISTANT</span>
+
+        <h1>Small actions.<br>
+            <span class="gradient-text">A greener future.</span>
+        </h1>
+
+        <p>
+            Identify waste, discover smarter recycling methods,
+            and track your environmental impact with AI.
+        </p>
+
+        <div class="auth-feature">
+            <span>01</span>
+            <div>
+                <strong>Smart waste scanning</strong>
+                <p>Upload an image to explore waste classification.</p>
+            </div>
+        </div>
+
+        <div class="auth-feature">
+            <span>02</span>
+            <div>
+                <strong>AI-powered guidance</strong>
+                <p>Learn how to recycle, reuse, or dispose of items.</p>
+            </div>
+        </div>
+
+        <div class="auth-feature">
+            <span>03</span>
+            <div>
+                <strong>Track your impact</strong>
+                <p>Keep a record of your recycling activity.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <span class="eyebrow">WELCOME BACK</span>
+        <h2>Sign in to your account</h2>
+        <p class="muted">Continue your journey toward a cleaner planet.</p>
+
+        <form method="POST" action="{{ url_for('login') }}"
+              data-loading>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="button button-primary">
+                Sign In <span>→</span>
+            </button>
+        </form>
+
+        <p class="form-bottom">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Create one</a>
+        </p>
+    </div>
+</section>
+{% endblock %}
+```

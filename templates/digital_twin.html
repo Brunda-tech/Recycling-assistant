@@ -1,0 +1,136 @@
+
+{% extends "base.html" %}
+
+{% block title %}Digital Twin | EcoCycle AI{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <span class="eyebrow">INTERACTIVE RECYCLING SIMULATION</span>
+    <h1>Your waste's <span class="gradient-text">next life.</span></h1>
+    <p class="muted">
+        Explore the stages an item may pass through after it is discarded.
+    </p>
+</section>
+
+<section class="panel twin-panel">
+    <div class="twin-header">
+        <div>
+            <span class="eyebrow">DIGITAL TWIN MODEL</span>
+            <h2>Recycling journey simulator</h2>
+        </div>
+        <span class="live-indicator">● Simulation active</span>
+    </div>
+
+    <div class="twin-flow">
+        <div class="twin-node">
+            <span>📦</span>
+            <h3>Waste item</h3>
+            <p id="twin-item-stage">Ready to route</p>
+        </div>
+
+        <div class="twin-connector">→</div>
+
+        <div class="twin-node">
+            <span>🔍</span>
+            <h3>Collection</h3>
+            <p>Accepted local collection</p>
+        </div>
+
+        <div class="twin-connector">→</div>
+
+        <div class="twin-node">
+            <span>🚚</span>
+            <h3>Next destination</h3>
+            <p id="twin-destination">Choose a category</p>
+        </div>
+
+        <div class="twin-connector">→</div>
+
+        <div class="twin-node">
+            <span>🌱</span>
+            <h3>Next step</h3>
+            <p id="twin-next-step">See where the material goes</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="twin-category">Select a waste category</label>
+        <select id="twin-category">
+            <option value="Recyclable">Recyclable</option>
+            <option value="Reusable">Reusable</option>
+            <option value="E-waste">E-waste</option>
+            <option value="Hazardous">Hazardous</option>
+            <option value="Biodegradable">Biodegradable</option>
+        </select>
+    </div>
+
+    <button type="button" id="simulate-twin"
+            class="button button-primary">
+        Simulate Journey →
+    </button>
+
+    <div id="twin-result" class="recommendation-box" aria-live="polite">
+        <h3 id="twin-result-title">Where does it go next?</h3>
+        <p id="twin-result-copy">Choose a category to see a likely destination, handling step, and possible next use.</p>
+    </div>
+
+    <p class="muted small-text">
+        This is an educational simulation. Actual processing methods vary
+        by material and local waste-management facilities.
+    </p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const twinButton = document.getElementById("simulate-twin");
+const twinCategory = document.getElementById("twin-category");
+const twinItemStage = document.getElementById("twin-item-stage");
+const twinDestination = document.getElementById("twin-destination");
+const twinNextStep = document.getElementById("twin-next-step");
+const twinResultTitle = document.getElementById("twin-result-title");
+const twinResultCopy = document.getElementById("twin-result-copy");
+
+const journeys = {
+    "Recyclable": {
+        destination: "Materials recovery facility",
+        next: "Sorted by material, then sent for recycling",
+        detail: "Use your local recycling collection. Empty and rinse containers, and check which materials your area accepts. Recovered paper, glass, metal, and accepted plastics can become manufacturing material."
+    },
+    "Reusable": {
+        destination: "Reuse, repair, or donation center",
+        next: "Cleaned, repaired, or passed to a new owner",
+        detail: "A clean, intact item can go to a suitable recipient, repair service, or reuse center instead of entering the waste stream."
+    },
+    "E-waste": {
+        destination: "Authorized e-waste collection point",
+        next: "Safely dismantled for specialist material recovery",
+        detail: "Take electronics and loose batteries to an authorized collection point or certified recycler. Do not put them in household recycling."
+    },
+    "Hazardous": {
+        destination: "Household hazardous-waste drop-off",
+        next: "Identified and handled by trained staff",
+        detail: "Keep the material sealed, labeled when possible, and separate. Follow your municipality's instructions; never pour chemicals into drains or mix them with regular recycling."
+    },
+    "Biodegradable": {
+        destination: "Home, community, or municipal compost site",
+        next: "Composted into soil amendments if accepted",
+        detail: "Place suitable food and garden scraps in a compost route that accepts them. Keep plastic and other contaminants out, and check the facility's accepted-material list."
+    }
+};
+
+function updateJourney() {
+    const category = twinCategory.value;
+    const journey = journeys[category];
+    twinItemStage.textContent = category + " selected";
+    twinDestination.textContent = journey.destination;
+    twinNextStep.textContent = journey.next;
+    twinResultTitle.textContent = category + " next stop";
+    twinResultCopy.textContent = journey.detail;
+}
+
+twinCategory.addEventListener("change", updateJourney);
+twinButton.addEventListener("click", updateJourney);
+updateJourney();
+</script>
+{% endblock %}
